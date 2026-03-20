@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify'
-import { ZodTypeProvider } from '@fastify/type-provider-zod'
+import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { CreateUserSchema, UpdateUserSchema, UserQuerySchema } from './users.schemas'
 import { listUsersService, createUserService, updateUserService, deleteUserService } from './users.service'

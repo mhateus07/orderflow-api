@@ -3,7 +3,7 @@ import cookie from '@fastify/cookie'
 import jwt from '@fastify/jwt'
 import sensible from '@fastify/sensible'
 import { ZodError } from 'zod'
-import { serializerCompiler, validatorCompiler } from '@fastify/type-provider-zod'
+import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod'
 
 import { AppError } from './shared/errors/app-error'
 import { swaggerPlugin } from './shared/plugins/swagger'

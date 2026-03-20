@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify'
-import { ZodTypeProvider } from '@fastify/type-provider-zod'
+import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { RegisterSchema, LoginSchema } from './auth.schemas'
 import { registerService, loginService, refreshService, logoutService } from './auth.service'

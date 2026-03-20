@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify'
-import { ZodTypeProvider } from '@fastify/type-provider-zod'
+import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { SalesReportQuerySchema } from './reports.schemas'
 import { getSalesReportService } from './reports.service'
 import { authenticate } from '../../shared/middlewares/authenticate'

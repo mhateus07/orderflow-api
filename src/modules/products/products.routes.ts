@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify'
-import { ZodTypeProvider } from '@fastify/type-provider-zod'
+import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
 import { CreateProductSchema, UpdateProductSchema, ProductQuerySchema } from './products.schemas'
 import {
