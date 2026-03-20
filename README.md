@@ -4,6 +4,7 @@
 
 **SaaS REST API for restaurant order management**
 
+[![CI](https://github.com/mhateus07/orderflow-api/actions/workflows/ci.yml/badge.svg)](https://github.com/mhateus07/orderflow-api/actions/workflows/ci.yml)
 [![Node.js](https://img.shields.io/badge/Node.js-20-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Fastify](https://img.shields.io/badge/Fastify-4-000000?style=flat-square&logo=fastify&logoColor=white)](https://fastify.dev)
