@@ -2,11 +2,12 @@ import Fastify from 'fastify'
 import cookie from '@fastify/cookie'
 import jwt from '@fastify/jwt'
 import sensible from '@fastify/sensible'
+import swagger from '@fastify/swagger'
+import swaggerUi from '@fastify/swagger-ui'
 import { ZodError } from 'zod'
-import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod'
+import { serializerCompiler, validatorCompiler, jsonSchemaTransform } from 'fastify-type-provider-zod'
 
 import { AppError } from './shared/errors/app-error'
-import { swaggerPlugin } from './shared/plugins/swagger'
 import { authRoutes } from './modules/auth/auth.routes'
 import { usersRoutes } from './modules/users/users.routes'
 import { productsRoutes } from './modules/products/products.routes'
@@ -23,14 +24,40 @@ export async function buildApp() {
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
 
-  // Plugins
+  // Swagger — must be registered before routes
+  await app.register(swagger, {
+    openapi: {
+      info: {
+        title: 'OrderFlow API',
+        description: 'SaaS REST API for restaurant order management. Multi-tenant, RBAC, JWT auth.',
+        version: '1.0.0',
+      },
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          },
+        },
+      },
+      security: [{ bearerAuth: [] }],
+    },
+    transform: jsonSchemaTransform,
+  })
+
+  await app.register(swaggerUi, {
+    routePrefix: '/docs',
+    uiConfig: { docExpansion: 'list', deepLinking: false },
+  })
+
+  // Core plugins
   await app.register(sensible)
   await app.register(cookie, { secret: process.env.COOKIE_SECRET ?? 'cookie-secret' })
   await app.register(jwt, {
     secret: process.env.JWT_SECRET!,
     sign: { expiresIn: '15m' },
   })
-  await app.register(swaggerPlugin)
 
   // Routes
   await app.register(authRoutes, { prefix: '/auth' })
@@ -41,7 +68,10 @@ export async function buildApp() {
   await app.register(reportsRoutes, { prefix: '/reports' })
 
   // Health check
-  app.get('/health', () => ({ status: 'ok', timestamp: new Date().toISOString() }))
+  app.get('/health', { schema: { hide: true } }, () => ({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+  }))
 
   // Global error handler
   app.setErrorHandler((error, _request, reply) => {
