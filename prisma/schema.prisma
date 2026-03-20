@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Tenant ──────────────────────────────────────────────────────────────────
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users     User[]
+  products  Product[]
+  customers Customer[]
+  orders    Order[]
+  logs      ActionLog[]
+}
+
+// ─── User ─────────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+}
+
+model User {
+  id           String    @id @default(uuid())
+  tenantId     String
+  name         String
+  email        String
+  passwordHash String
+  role         Role      @default(EMPLOYEE)
+  deletedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  tenant Tenant      @relation(fields: [tenantId], references: [id])
+  logs   ActionLog[]
+
+  @@unique([tenantId, email])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+// ─── Product ──────────────────────────────────────────────────────────────────
+
+model Product {
+  id          String    @id @default(uuid())
+  tenantId    String
+  name        String
+  description String?
+  price       Decimal   @db.Decimal(10, 2)
+  category    String?
+  available   Boolean   @default(true)
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id])
+  orderItems OrderItem[]
+}
+
+// ─── Customer ─────────────────────────────────────────────────────────────────
+
+model Customer {
+  id        String    @id @default(uuid())
+  tenantId  String
+  name      String
+  email     String?
+  phone     String?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  tenant Tenant  @relation(fields: [tenantId], references: [id])
+  orders Order[]
+}
+
+// ─── Order ────────────────────────────────────────────────────────────────────
+
+enum OrderStatus {
+  PENDING
+  PREPARING
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id         String      @id @default(uuid())
+  tenantId   String
+  customerId String?
+  status     OrderStatus @default(PENDING)
+  total      Decimal     @db.Decimal(10, 2)
+  notes      String?
+  deletedAt  DateTime?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  tenant   Tenant     @relation(fields: [tenantId], references: [id])
+  customer Customer?  @relation(fields: [customerId], references: [id])
+  items    OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  unitPrice Decimal @db.Decimal(10, 2)
+  subtotal  Decimal @db.Decimal(10, 2)
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+// ─── Action Log ───────────────────────────────────────────────────────────────
+
+model ActionLog {
+  id        String   @id @default(uuid())
+  tenantId  String
+  userId    String
+  action    String
+  entity    String
+  entityId  String?
+  details   Json?
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+}
